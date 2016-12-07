@@ -1,5 +1,6 @@
 .PHONY: build 
 
+# Latest git tag
 LAST_VER := $(shell git describe --abbrev=0 --tags 2>/dev/null || echo untagged)
 IS_DIRTY := $(shell git diff --quiet --ignore-submodules HEAD; echo $$?)
 IS_LATEST := $(shell test $(IS_DIRTY) -eq 0 && \
@@ -45,7 +46,7 @@ build:
 	@ make build/$(OS)_$(ARCH)
 
 build/%: $(SOURCE_CODE)
-	go build -o $(BIN) -ldflags "$(LDFLAGS)" $(GO_MAIN)
+	go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
 
 build-in-docker: $(SOURCE_CODE)
 	docker run --rm \
