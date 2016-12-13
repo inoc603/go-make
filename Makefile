@@ -14,6 +14,8 @@ GITHASH := $(shell test $(IS_DIRTY) -eq 0 && \
 IMPORT_PATH := $(shell go list)
 SOURCE_CODE := $(shell go list -f "{{ .Name }}" ./* 2>/dev/null | grep -v main | xargs) $(shell ls | grep vendor)
 
+GO_VERSION := 1.7
+
 OS := $(shell go env GOOS)
 ARCH := $(shell go env GOARCH)
 GO_MAIN := main.go
@@ -46,13 +48,13 @@ build:
 	@ make build/$(OS)_$(ARCH)
 
 build/%: $(SOURCE_CODE)
-	go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
+	GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
 
 build-in-docker: $(SOURCE_CODE)
 	docker run --rm \
 		-v $(GOPATH)/src:/go/src \
 		-w /go/src/$(IMPORT_PATH) \
-		golang:1.6 \
+		golang:$(GO_VERSION) \
 		bash -c "$(BUILD_CMD)"
 
 vars:
@@ -82,7 +84,9 @@ restart: build kill bg
 watch: restart
 	fswatch -o $(SOURCE_CODE) | xargs -n1 -I{} $(MAKE) restart
 
-docker: Dockerfile build-in-docker
+# docker: Dockerfile build-in-docker
+docker: Dockerfile 
+	make build OS=linux ARCH=amd64
 	docker build -t $(shell basename $(CURDIR)) .
 
 push: docker

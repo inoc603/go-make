@@ -13,4 +13,5 @@ Makefile for go projects
 #   BINARY: the name of the output, defaults to the dirctory name
 # built binary will be `build/$(OS)_$(ARCH)/$(BINARY)`
 make build
+
 ```
