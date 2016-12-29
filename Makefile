@@ -48,7 +48,7 @@ build:
 	@ make build/$(OS)_$(ARCH)
 
 build/%: $(SOURCE_CODE)
-	GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
+	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
 
 build-in-docker: $(SOURCE_CODE)
 	docker run --rm \
