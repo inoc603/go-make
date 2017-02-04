@@ -18,6 +18,7 @@ GO_VERSION := 1.7
 
 OS := $(shell go env GOOS)
 ARCH := $(shell go env GOARCH)
+CGO := 0
 GO_MAIN := main.go
 BINARY := $(shell realpath $(GO_MAIN) | xargs dirname | xargs basename)
 BIN := build/$(OS)_$(ARCH)/$(BINARY)
@@ -48,7 +49,7 @@ build:
 	@ make build/$(OS)_$(ARCH)
 
 build/%: $(SOURCE_CODE)
-	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
+	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -i -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
 
 build-in-docker: $(SOURCE_CODE)
 	docker run --rm \
