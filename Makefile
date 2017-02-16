@@ -33,10 +33,14 @@ help:
 	@ echo "  	  OS: GOOS, default to \`go env GOOS\`"
 	@ echo "  	  ARCH: GOARCH, default to \`go env GOARCH\`"
 	@ echo "  	  BINARY: the name of the output, defaults to the dirctory name"
+	@ echo "  	  CGO: CGO_ENABLED, default is 0"
 	@ echo "	built binary will be \`build/OS_ARCH/BINARY\`"
 	@ echo ""
 	@ echo "docker:	build docker image"
 	@ echo "	image name is set using $$IMAGE"
+	@ echo ""
+	@ echo "push:	push docker image"
+	@ echo "	push $$IMAGE"
 
 tag:
 ifeq ($(IS_DIRTY), 1)
@@ -46,7 +50,7 @@ else
 endif
 
 build: 
-	$(MAKE) build/$(OS)_$(ARCH)
+	@ $(MAKE) build/$(OS)_$(ARCH) -B
 
 build/%: 
 	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) \
@@ -88,7 +92,7 @@ watch: restart
 	fswatch -o $(GO_DIRS) | xargs -n1 -I{} $(MAKE) restart
 
 # docker: Dockerfile build-in-docker
-docker: Dockerfile 
+docker: 
 	$(MAKE) build OS=linux ARCH=amd64
 	docker build -t $(shell basename $(CURDIR)) .
 
