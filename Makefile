@@ -7,12 +7,12 @@ IS_LATEST := $(shell test $(IS_DIRTY) -eq 0 && \
 	test `git rev-list -n 1 HEAD 2>/dev/null` = `git rev-list -n 1 $(LAST_VER) 2>/dev/null` && \
 	echo 1 || echo 0)
 VERSION := $(shell test $(IS_LATEST) -eq 1 && \
-	echo $(LAST_VER) || echo $(LAST_VER)-next)
+	echo $(LAST_VER) || echo dev)
 GITHASH := $(shell test $(IS_DIRTY) -eq 0 && \
 	echo `git rev-parse HEAD` || echo `git rev-parse HEAD`-dirty)
 
 IMPORT_PATH := $(shell go list)
-SOURCE_CODE := $(shell go list -f "{{ .Name }}" ./* 2>/dev/null | grep -v main | xargs) $(shell ls | grep vendor)
+GO_DIRS := $(shell go list -f "{{ .Name }}" ./* 2>/dev/null | grep -v main | xargs) $(shell ls | grep vendor)
 
 GO_VERSION := 1.7
 
@@ -46,12 +46,14 @@ else
 endif
 
 build: 
-	@ make build/$(OS)_$(ARCH)
+	$(MAKE) build/$(OS)_$(ARCH)
 
-build/%: $(SOURCE_CODE)
-	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) go build -o $(BIN) -i -ldflags "$(LDFLAGS)" --tags "$(TAGS)" $(GO_MAIN)
+build/%: 
+	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) \
+		go build -o $(BIN) -i -ldflags "$(LDFLAGS)" --tags "$(TAGS)" \
+		$(GO_MAIN)
 
-build-in-docker: $(SOURCE_CODE)
+build-in-docker: 
 	docker run --rm \
 		-v $(GOPATH)/src:/go/src \
 		-w /go/src/$(IMPORT_PATH) \
@@ -83,11 +85,11 @@ kill:
 restart: build kill bg
 
 watch: restart
-	fswatch -o $(SOURCE_CODE) | xargs -n1 -I{} $(MAKE) restart
+	fswatch -o $(GO_DIRS) | xargs -n1 -I{} $(MAKE) restart
 
 # docker: Dockerfile build-in-docker
 docker: Dockerfile 
-	make build OS=linux ARCH=amd64
+	$(MAKE) build OS=linux ARCH=amd64
 	docker build -t $(shell basename $(CURDIR)) .
 
 push: docker
