@@ -14,7 +14,7 @@ GITHASH := $(shell test $(IS_DIRTY) -eq 0 && \
 IMPORT_PATH := $(shell go list)
 GO_DIRS := $(shell go list -f "{{ .Name }}" ./* 2>/dev/null | grep -v main | xargs) $(shell ls | grep vendor)
 
-GO_VERSION := 1.7
+GO_VERSION := 1.8
 
 OS := $(shell go env GOOS)
 ARCH := $(shell go env GOARCH)
@@ -42,15 +42,8 @@ help:
 	@ echo "push:	push docker image"
 	@ echo "	push $$IMAGE"
 
-tag:
-ifeq ($(IS_DIRTY), 1)
-	@ echo Please commit your changes first
-else
-	@ git tag $(TAG)
-endif
-
 build: 
-	@ $(MAKE) build/$(OS)_$(ARCH) -B
+	@ $(MAKE) build/$(OS)_$(ARCH)
 
 build/%: 
 	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) \
