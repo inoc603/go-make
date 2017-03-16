@@ -43,7 +43,7 @@ help:
 	@ echo "	push $$IMAGE"
 
 build: 
-	@ $(MAKE) build/$(OS)_$(ARCH)
+	@ $(MAKE) build/$(OS)_$(ARCH) -B
 
 build/%: 
 	CGO_ENABLED=$(CGO) GOOS=$(OS) GOARCH=$(ARCH) \
