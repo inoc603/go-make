@@ -36,6 +36,10 @@ BUILD_CMD := make build OS=$(OS) ARCH=$(ARCH)
 # golang docker image version
 GO_VERSION := 1.8
 
+DOCKERFILE := Dockerfile
+
+IMAGE_NAME := $(shell basename $(CURDIR))
+
 PID := $(shell test -e tmp/$(CMD).pid && cat tmp/$(CMD).pid)
 # whether to use docker
 DOCKER := 0
@@ -110,10 +114,10 @@ watch: restart
 docker: 
 	@ $(MAKE) build-in-docker OS=linux ARCH=amd64
 	@ echo "Building docker container"
-	@ docker build -t $(shell basename $(CURDIR)) .
+	@ docker build -t $(IMAGE_NAME) -f $(DOCKERFILE) .
 
 push: docker
-	docker tag $(shell basename $(CURDIR)) $(IMAGE):$(VERSION)
+	docker tag $(IMAGE_NAME) $(IMAGE):$(VERSION)
 	docker push $(IMAGE):$(VERSION)
 
 ifeq (dev, $(VERSION))
