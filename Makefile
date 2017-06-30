@@ -130,7 +130,6 @@ FPM := docker run -it --rm -v `pwd`:/fpm docker.elenet.me/yuelong.huang/fpm:alpi
 
 rpm:
 	@ mkdir -p dist
-	@ $(MAKE) build OS=linux ARCH=amd64
 	@ $(FPM) -s dir -t rpm -n $(RPM_NAME) -f -p dist \
 		--rpm-os=linux -v $(rpm_version) $(rpm_args) \
 		$(rpm_files)
